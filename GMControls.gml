@@ -3,30 +3,27 @@
  * @desc This is an input, and keybind system.
  */
 function GMControls() {
-	//Credit for key_press etc idea: germ3x
-	/*
-	
-	These structs have/contain the input variables and their set values.
-	*/
-	
+
 	static _controls = undefined;
 	
 	if _controls != undefined {
 		return _controls;	
 	}
-	
-	static key = {
+
+	//Array of keybind names as strings
+	static keybind_list = keybinds_db();
+
+	// -4 gets ignored by input checks.
+	static key = {	//Primary		Secondary
 		left		: [ord("A"),	vk_left],
 		right		: [ord("D"),	vk_right],
-		interact	: [ord("F"),	-4],
 		jump		: [ord("W"),	vk_up],
 		menu		: [vk_escape,	-4]
 	}
 	
-	static mouse = {
+	static mouse = {  //Primary		Secondary
 		primary		: [mb_left,		-4],
-		secondary	: [mb_right,	-4],
-		shoot		: [mb_left,		-4]
+		secondary	: [mb_right,	-4]
 	}
 	
 	/*
@@ -38,7 +35,7 @@ function GMControls() {
 	static mouse_names_length = struct_names_count(mouse);
 	
 	/**
-	 * @desc With this function you save the current state of keybinds to a file.
+	 * @desc Save the current state of keybinds to a file.
 	 */
 	static save_keybinds = function() {
 		var _save_name = "keybinds.json";
@@ -51,7 +48,7 @@ function GMControls() {
 	}
 	
 	/**
-	 * @desc With this function you load keybinds from save file if it exists.
+	 * @desc Load keybinds from save file if it exists.
 	 */
 	static load_keybinds = function() {
 		var _save_name = "keybinds.json";
@@ -68,11 +65,8 @@ function GMControls() {
 		return "Keybinds loaded!"
 	}
 	
-	//Initiate loading of keys;
-	var _load = load_keybinds();
-	
 	/**
-	 * @desc With this function you can check if any of the set keys are held down or not.
+	 * @desc Check if set keys of the input variable are held down.
 	 * @param {string} _name Name of the input variable.
 	 */
 	static key_press = function(_name) {
@@ -82,7 +76,7 @@ function GMControls() {
 	}
 	
 	/**
-	 * @desc With this function you can check if any of the set keys have been pressed or not.
+	 * @desc Check if set keys of the input variable have been pressed.
 	 * @param {string} _name Name of the input variable.
 	 */
 	static key_pressed = function(_name) {
@@ -92,7 +86,7 @@ function GMControls() {
 	}
 	
 	/**
-	 * @desc With this function you can check if any of the set keys have been released or not.
+	 * @desc Check if set keys of the input variable have been released.
 	 * @param {string} _name Name of the input variable.
 	 */
 	static key_released = function(_name) {
@@ -102,7 +96,7 @@ function GMControls() {
 	}
 	
 	/**
-	 * @desc With this function you can check if any of the set mouse buttons are held down or not.
+	 * @desc Check if set mouse buttons of the input variable are held down.
 	 * @param {string} _name Name of the input variable.
 	 */
 	static mouse_press = function(_name) {
@@ -112,7 +106,7 @@ function GMControls() {
 	}
 	
 	/**
-	 * @desc With this function you can check if any of the set mouse buttons have been pressed or not.
+	 * @desc Check if set mouse buttons of the input variable have been pressed.
 	 * @param {string} _name Name of the input variable.
 	 */
 	static mouse_pressed = function(_name) {
@@ -122,7 +116,7 @@ function GMControls() {
 	}
 	
 	/**
-	 * @desc With this function you can check if any of the set mouse buttons have been released or not.
+	 * @desc Check if set mouse buttons of the input variable have been released.
 	 * @param {string} _name Name of the input variable.
 	 */
 	static mouse_released = function(_name) {
@@ -132,7 +126,7 @@ function GMControls() {
 	}
 	
 	/**
-	 * @desc With this function you can check if a key is assigned.
+	 * @desc Check if a key is available.
 	 * @param {any} _key Key to be checked.
 	 */
 	static free = function(_key) {
@@ -148,10 +142,10 @@ function GMControls() {
 	}
 
 	/**
-	 * @desc With this function you can add an input variable, and key(s) to be assigned.
+	 * @desc Add an input variable and key(s) to be assigned.
 	 * @param {string} _name Name of the input variable.
 	 * @param {real} _primary Primary key to be set.
-	 * @param {real} _secondary Default is -4.
+	 * @param {real} _secondary Optional. Default is -4.
 	 */
 	static add = function(_name, _primary, _secondary = -4) {
 		if string_letters(_name) != _name 
@@ -171,24 +165,17 @@ function GMControls() {
 	}
 	
 	/**
-	 * @desc With this function you can remove an input variable.
+	 * @desc Remove input variable.
 	 * @param {string} _name Name of the input variable.
 	 */
 	static remove = function(_name) {
 		if _name == "" return "Name cannot be empty!"
-		//For chaos >:)//////////
-		if _name == "remove" {
-			struct_remove(self, _name)
-			show_message_async("Function 'remove' removed!... Not the greatest idea...");
-			exit
-		}
-		//////////////////////////////
 		if !struct_exists(key, _name) return "Input does not exist!"
 		struct_remove(key, _name);
 		return "Input has been removed!"
 	}
 	/**
-	 * @desc With this function you can assign either the primary or the secondary key from the input variable.
+	 * @desc Assign key to primary or secondary of input variable.
 	 * @param {string} _name Name of the input variable.
 	 * @param {bool} _secondary Default is false.
 	 */
@@ -197,12 +184,11 @@ function GMControls() {
 		var get_key = keyboard_lastkey;
 		keyboard_lastkey = -1;
 		key[$ _name][_secondary] = get_key;
-		//return "Key assigned!";
 		return get_key;
 	}
 	
 	/**
-	 * @desc With this function you can unassign either the primary or the secondary key from the input variable.
+	 * @desc Unassign key from primary or secondary of input variable.
 	 * @param {string} _name Name of the input variable.
 	 * @param {bool} _secondary Default is false.
 	 */
@@ -212,19 +198,13 @@ function GMControls() {
 		key[$ _name][_secondary] = -4;
 		return $"{_index_name} input for '{_name}' has been unassigned!"
 	}
-	
-	static set = function(_name, _key) {
-		key[$ _name][0] = _key;	
-	}
-	
+		
 	/**
-	 * @desc This function listens and returns the next key input pressed.
+	 * @desc Listen and return the last key input pressed.
 	 */
 	static listen_key = function() {
 		return keyboard_lastkey	 
 	}
-	
-	static keybind_list = keybinds_db();
 	
 	_controls = static_get(GMControls);
 	
