@@ -2,12 +2,19 @@
 /**
  * @desc This is an input, and keybind system.
  */
-function GMControls() constructor {
+function GMControls() {
 	//Credit for key_press etc idea: germ3x
 	/*
 	
 	These structs have/contain the input variables and their set values.
 	*/
+	
+	static _controls = undefined;
+	
+	if _controls != undefined {
+		return _controls;	
+	}
+	
 	static key = {
 		left		: [ord("A"),	vk_left],
 		right		: [ord("D"),	vk_right],
@@ -219,9 +226,8 @@ function GMControls() constructor {
 	
 	static keybind_list = keybinds_db();
 	
+	_controls = static_get(GMControls);
+	
 }
 
-//INITIALIZE THE CONTROLS CONSTRUCTOR
-#macro CONTROLS global.controls
-CONTROLS = new GMControls();
-var _load = CONTROLS.load_keybinds();
+GMControls();
