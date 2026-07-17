@@ -13,16 +13,16 @@ function GMControls() {
 	static __keybind_list = __GMControlsKeyNames();
 
 	// -4 gets ignored by input checks.
-	static key = {	//Primary		Secondary
+	static key = {
 		left		: [ord("A"),	vk_left],
 		right		: [ord("D"),	vk_right],
 		jump		: [ord("W"),	vk_up],
 		menu		: [vk_escape,	-4]
 	}
 	
-	static mouse = {  //Primary		Secondary
-		primary		: [mb_left,		-4],
-		secondary	: [mb_right,	-4]
+	static mouse = {
+		left		: [mb_left,		-4],
+		right		: [mb_right,	-4]
 	}
 		
 	/**
