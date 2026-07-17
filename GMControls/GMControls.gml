@@ -12,7 +12,7 @@ function GMControls() {
 	
 	static __keybind_list = __GMControlsKeyNames();
 
-	static key = {
+	static __key = {
 		left		: [ord("A"),	vk_left],
 		right		: [ord("D"),	vk_right],
 		up			: [ord("W"),	vk_up],
@@ -20,7 +20,7 @@ function GMControls() {
 		menu		: [vk_escape,	-4]
 	}
 	
-	static mouse = {
+	static __mouse = {
 		left		: [mb_left,		-4],
 		right		: [mb_right,	-4]
 	}
@@ -31,7 +31,7 @@ function GMControls() {
 	static save_keybinds = function() {
 		var _save_name = "keybinds.json";
 		var _open_save = file_text_open_write(_save_name);
-		var _bindings  = { _key : key, _mouse : mouse }
+		var _bindings  = { key : __key, mouse : __mouse }
 		var _json_keybinds = json_stringify(_bindings, true);
 		file_text_write_string(_open_save, _json_keybinds);
 		file_text_close(_open_save);
@@ -52,8 +52,8 @@ function GMControls() {
 			_save_string += file_text_readln(_open_save);	
 		}
 		var _load_save = json_parse(_save_string);
-		key = variable_clone(_load_save._key);
-		mouse = variable_clone(_load_save._mouse);
+		__key = variable_clone(_load_save.key);
+		__mouse = variable_clone(_load_save.mouse);
 		file_text_close(_open_save);
 		return "Keybinds loaded!"
 	}
@@ -63,7 +63,7 @@ function GMControls() {
 	 * @param {string} _name Name of the input variable.
 	 */
 	static key_press = function(_name) {
-		var _key = key[$ _name];
+		var _key = __key[$ _name];
 		return keyboard_check(_key[0]) or keyboard_check(_key[1]);
 	}
 	
@@ -72,7 +72,7 @@ function GMControls() {
 	 * @param {string} _name Name of the input variable.
 	 */
 	static key_pressed = function(_name) {
-		var _key = key[$ _name];
+		var _key = __key[$ _name];
 		return keyboard_check_pressed(_key[0]) or keyboard_check_pressed(_key[1]);
 	}
 	
@@ -81,7 +81,7 @@ function GMControls() {
 	 * @param {string} _name Name of the input variable.
 	 */
 	static key_released = function(_name) {
-		var _key = key[$ _name];
+		var _key = __key[$ _name];
 		return keyboard_check_released(_key[0]) or keyboard_check_released(_key[1]);
 	}
 	
@@ -90,7 +90,7 @@ function GMControls() {
 	 * @param {string} _name Name of the input variable.
 	 */
 	static mouse_press = function(_name) {
-		var _mouse = mouse[$ _name];
+		var _mouse = __mouse[$ _name];
 		return mouse_check_button(_mouse[0]) or mouse_check_button(_mouse[1]);
 	}
 	
@@ -99,7 +99,7 @@ function GMControls() {
 	 * @param {string} _name Name of the input variable.
 	 */
 	static mouse_pressed = function(_name) {
-		var _mouse = mouse[$ _name];
+		var _mouse = __mouse[$ _name];
 		return mouse_check_button_pressed(_mouse[0]) or mouse_check_button_pressed(_mouse[1]);
 	}
 	
@@ -108,7 +108,7 @@ function GMControls() {
 	 * @param {string} _name Name of the input variable.
 	 */
 	static mouse_released = function(_name) {
-		var _mouse = mouse[$ _name];
+		var _mouse = __mouse[$ _name];
 		return mouse_check_button_released(_mouse[0]) or mouse_check_button_released(_mouse[1]);
 	}
 	
@@ -119,7 +119,7 @@ function GMControls() {
 	static free = function(_key) {
 		var _free = true
 		for (var i = 0; i < key_names_length; ++i) {
-			if array_contains(key[$ key_names[i]], _key) {
+			if array_contains(__key[$ key_names[i]], _key) {
 				_free = false;
 				break;
 			}
@@ -137,7 +137,7 @@ function GMControls() {
 		if string_letters(_name) != _name { 
 			return "Name can only contain letters!";
 		}
-		if struct_exists(key, _name) {
+		if struct_exists(__key, _name) {
 			return "Name exists!";
 		}
 		if (_primary < 0 and _primary > 254) or (_secondary != -4 or (_secondary < 0 and _secondary > 254)) {
@@ -147,7 +147,7 @@ function GMControls() {
 			return "Key(s) in use!";
 		}
 		var _name_lowercase = string_lower(_name);
-		struct_set(key, _name_lowercase, [_primary, _secondary]);
+		struct_set(__key, _name_lowercase, [_primary, _secondary]);
 		return $"Input name : {_name_lowercase}\nPrimary key : {_primary}\nSecondary key : {_secondary}\nHave been added!"
 	}
 	
@@ -159,10 +159,10 @@ function GMControls() {
 		if _name == "" { 
 			return "Name cannot be empty!"; 
 		}
-		if !struct_exists(key, _name) { 
+		if !struct_exists(__key, _name) { 
 			return "Input does not exist!"; 
 		}
-		struct_remove(key, _name);
+		struct_remove(__key, _name);
 		return "Input has been removed!"
 	}
 	/**
@@ -174,10 +174,10 @@ function GMControls() {
 		if !free(keyboard_lastkey) { 
 			return 0; 
 		}
-		var get_key = keyboard_lastkey;
+		var _get_key = keyboard_lastkey;
 		keyboard_lastkey = -1;
-		key[$ _name][_secondary] = get_key;
-		return __keybind_list[get_key];
+		__key[$ _name][_secondary] = _get_key;
+		return __keybind_list[_get_key];
 	}
 	
 	/**
@@ -187,10 +187,10 @@ function GMControls() {
 	 */
 	static unassign = function(_name, _secondary = false) {
 		var _index_name = _secondary == false ? "Primary" : "Secondary";
-		if key[$ _name][_secondary] == -4 {
+		if __key[$ _name][_secondary] == -4 {
 			return $"{_index_name} input for '{_name}' is already unassigned!";
 		}
-		key[$ _name][_secondary] = -4;
+		__key[$ _name][_secondary] = -4;
 		return $"{_index_name} input for '{_name}' has been unassigned!"
 	}
 	
