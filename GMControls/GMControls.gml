@@ -134,8 +134,8 @@ function GMControls() {
 	 * @param {real} _secondary Optional. Default is -4.
 	 */
 	static add = function(_name, _primary, _secondary = -4) {
-		if string_letters(_name) != _name { 
-			return "Name can only contain letters!";
+		if string_lettersdigits(_name) != _name { 
+			return "Name cannot contain special characters!";
 		}
 		if struct_exists(__key, _name) {
 			return "Name exists!";
