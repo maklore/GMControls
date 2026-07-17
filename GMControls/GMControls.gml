@@ -12,11 +12,11 @@ function GMControls() {
 	
 	static __keybind_list = __GMControlsKeyNames();
 
-	// -4 gets ignored by input checks.
 	static key = {
 		left		: [ord("A"),	vk_left],
 		right		: [ord("D"),	vk_right],
-		jump		: [ord("W"),	vk_up],
+		up			: [ord("W"),	vk_up],
+		down		: [ord("S"),	vk_down],
 		menu		: [vk_escape,	-4]
 	}
 	
